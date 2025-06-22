@@ -1,13 +1,6 @@
 ﻿import tkinter as tk
-from tkinter import messagebox
 
-# === Hauptfenster ===
-root = tk.Tk()
-root.title("Transportmodus")
-root.attributes("-fullscreen", True)  # Vollbild
-root.config(cursor="none")
-
-# === Farben ===
+# === Basisfarben und Schriftarten ===
 BG_COLOR = "#202020"
 BTN_COLOR = "#333333"
 TEXT_COLOR = "#FFFFFF"
@@ -16,63 +9,102 @@ RED = "#CC0000"
 FONT = ("Arial", 16)
 FONT_BIG = ("Arial", 20, "bold")
 
-root.configure(bg=BG_COLOR)
+class MainApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Multi-View UI")
+        self.attributes("-fullscreen", True)
+        self.config(cursor="none")
+        self.configure(bg=BG_COLOR)
 
-# === Container für Inhalt ===
-content_frame = tk.Frame(root, bg=BG_COLOR)
-content_frame.pack(expand=True, fill="both", padx=20, pady=20)
+        # Container für Seiten
+        self.container = tk.Frame(self, bg=BG_COLOR)
+        self.container.pack(expand=True, fill="both")
 
-# === Titel ===
-title = tk.Label(content_frame, text="Transportmodus", fg="lightblue", bg=BG_COLOR, font=("Arial", 26, "bold"))
-title.pack(pady=10)
+        # Alle Seiten initialisieren
+        self.frames = {}
+        for F in (StartPage, HandbetriebPage, AutobetriebPage, InfopanelPage, TransportPage):
+            page_name = F.__name__
+            frame = F(parent=self.container, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-# === Infotext ===
-info_text = (
-    "Im Transportmodus fährt das Solarpanel\n"
-    "in seine Ausgangs- und Transportposition zurück.\n"
-    "In diesem Modus werden keine Messungen durchgeführt!"
-)
-info = tk.Label(content_frame, text=info_text, fg=TEXT_COLOR, bg=BG_COLOR, font=FONT, justify="center")
-info.pack(pady=10)
+        # Erste Seite anzeigen
+        self.show_frame("StartPage")
 
-# === JA / NEIN Buttons ===
-button_frame = tk.Frame(content_frame, bg=BG_COLOR)
-button_frame.pack(pady=20)
+        # Menüleiste unten
+        self.create_bottom_bar()
 
-def on_yes():
-    messagebox.showinfo("JA", "Transportmodus gestartet.")
+        # ESC zum Schließen
+        self.bind("<Escape>", lambda e: self.destroy())
 
-def on_no():
-    messagebox.showinfo("NEIN", "Transportmodus abgebrochen.")
+    def show_frame(self, page_name):
+        frame = self.frames[page_name]
+        frame.tkraise()
 
-btn_yes = tk.Button(button_frame, text="JA", bg=GREEN, fg="black", font=FONT_BIG, width=10, height=2, command=on_yes)
-btn_yes.pack(side="left", padx=20)
+    def create_bottom_bar(self):
+        bottom_frame = tk.Frame(self, bg=BG_COLOR)
+        bottom_frame.pack(side="bottom", fill="x", pady=10)
 
-btn_no = tk.Button(button_frame, text="NEIN", bg=RED, fg="black", font=FONT_BIG, width=10, height=2, command=on_no)
-btn_no.pack(side="right", padx=20)
+        buttons = [
+            ("🔄 Start", "StartPage"),
+            ("🛠️ Handbetrieb", "HandbetriebPage"),
+            ("⚙️ Auto-betrieb", "AutobetriebPage"),
+            ("ℹ️ Infopanel", "InfopanelPage"),
+            ("📦 Transport-modus", "TransportPage")
+        ]
 
-# === Unteres Menü ===
-bottom_frame = tk.Frame(root, bg=BG_COLOR)
-bottom_frame.pack(side="bottom", fill="x", pady=10)
+        for text, page in buttons:
+            b = tk.Button(bottom_frame, text=text, font=FONT, width=15, height=2, bg=BTN_COLOR, fg=TEXT_COLOR,
+                          command=lambda p=page: self.show_frame(p))
+            b.pack(side="left", padx=5)
 
-def dummy_action(name):
-    messagebox.showinfo(name, f"{name} gedrückt")
+# === Jede Seite als eigene Frame-Klasse ===
 
-menu_buttons = [
-    ("🔄 Start", "Start"),
-    ("🛠️ Handbetrieb", "Handbetrieb"),
-    ("⚙️ Auto-betrieb", "Autobetrieb"),
-    ("ℹ️ Infopanel", "Infopanel"),
-    ("📦 Transport-modus", "Transportmodus")
-]
+class StartPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=BG_COLOR)
+        tk.Label(self, text="Startseite", font=("Arial", 24), fg=TEXT_COLOR, bg=BG_COLOR).pack(pady=100)
 
-for text, name in menu_buttons:
-    b = tk.Button(bottom_frame, text=text, font=FONT, width=15, height=2, bg=BTN_COLOR, fg=TEXT_COLOR,
-                  command=lambda n=name: dummy_action(n))
-    b.pack(side="left", padx=5)
+class HandbetriebPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=BG_COLOR)
+        tk.Label(self, text="Handbetrieb", font=("Arial", 24), fg=TEXT_COLOR, bg=BG_COLOR).pack(pady=100)
 
-# === ESC schließt Vollbild ===
-root.bind("<Escape>", lambda e: root.destroy())
+class AutobetriebPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=BG_COLOR)
+        tk.Label(self, text="Autobetrieb", font=("Arial", 24), fg=TEXT_COLOR, bg=BG_COLOR).pack(pady=100)
 
-root.mainloop()
+class InfopanelPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=BG_COLOR)
+        tk.Label(self, text="Infopanel", font=("Arial", 24), fg=TEXT_COLOR, bg=BG_COLOR).pack(pady=100)
 
+class TransportPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=BG_COLOR)
+
+        tk.Label(self, text="Transportmodus", font=("Arial", 26, "bold"), fg="lightblue", bg=BG_COLOR).pack(pady=10)
+
+        info_text = (
+            "Im Transportmodus fährt das Solarpanel\n"
+            "in seine Ausgangs- und Transportposition zurück.\n"
+            "In diesem Modus werden keine Messungen durchgeführt!"
+        )
+
+        tk.Label(self, text=info_text, fg=TEXT_COLOR, bg=BG_COLOR, font=FONT, justify="center").pack(pady=10)
+
+        btn_frame = tk.Frame(self, bg=BG_COLOR)
+        btn_frame.pack(pady=20)
+
+        tk.Button(btn_frame, text="JA", bg=GREEN, fg="black", font=FONT_BIG, width=10, height=2,
+                  command=lambda: print("Transportmodus gestartet")).pack(side="left", padx=20)
+
+        tk.Button(btn_frame, text="NEIN", bg=RED, fg="black", font=FONT_BIG, width=10, height=2,
+                  command=lambda: print("Transportmodus abgebrochen")).pack(side="right", padx=20)
+
+# === App starten ===
+if __name__ == "__main__":
+    app = MainApp()
+    app.mainloop()
