@@ -14,6 +14,7 @@ class MainApp(tk.Tk):
         super().__init__()
         self.attributes("-fullscreen", True)
         self.configure(bg=BG_COLOR)
+        self.config(cursor="none")
 
         # Container für Inhalte
         self.container = tk.Frame(self, bg=BG_COLOR)
