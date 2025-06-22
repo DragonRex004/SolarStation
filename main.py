@@ -14,7 +14,7 @@ class MainApp(tk.Tk):
         super().__init__()
         self.title("Multi-View UI")
         self.attributes("-fullscreen", True)
-        self.config(cursor="none")
+        # self.config(cursor="none")
         self.configure(bg=BG_COLOR)
 
         # Container für Seiten
@@ -33,7 +33,8 @@ class MainApp(tk.Tk):
         self.show_frame("StartPage")
 
         # Menüleiste unten
-        self.create_bottom_bar()
+        #self.create_bottom_bar()
+        self.create_right_menu()
 
         # ESC zum Schließen
         self.bind("<Escape>", lambda e: self.destroy())
@@ -58,6 +59,32 @@ class MainApp(tk.Tk):
             b = tk.Button(bottom_frame, text=text, font=FONT, width=15, height=2, bg=BTN_COLOR, fg=TEXT_COLOR,
                           command=lambda p=page: self.show_frame(p))
             b.pack(side="left", padx=5)
+
+    def create_right_menu(self):
+        right_frame = tk.Frame(self, bg=BG_COLOR)
+        right_frame.pack(side="right", fill="y", padx=10, pady=10)
+
+        buttons = [
+            ("🔄 Start", "StartPage"),
+            ("🛠️ Handbetrieb", "HandbetriebPage"),
+            ("⚙️ Auto-betrieb", "AutobetriebPage"),
+            ("ℹ️ Infopanel", "InfopanelPage"),
+            ("📦 Transport-modus", "TransportPage")
+        ]
+
+        for text, page in buttons:
+            b = tk.Button(
+                right_frame,
+                text=text,
+                font=FONT,
+                width=18,
+                height=2,
+                bg=BTN_COLOR,
+                fg=TEXT_COLOR,
+                anchor="w",  # optional: Text linksbündig
+                command=lambda p=page: self.show_frame(p)
+            )
+            b.pack(side="top", pady=5, fill="x")
 
 # === Jede Seite als eigene Frame-Klasse ===
 
