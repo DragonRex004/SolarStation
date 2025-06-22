@@ -12,8 +12,7 @@ FONT_BIG = ("Arial", 20, "bold")
 class MainApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Touch UI")
-        self.geometry("800x480")  # Feste Größe für das Display
+        self.attributes("-fullscreen", True)
         self.configure(bg=BG_COLOR)
 
         # Container für Inhalte
